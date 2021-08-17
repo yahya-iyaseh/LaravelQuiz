@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Question;
+use App\Models\User;
+use App\Models\Result;
 class Quiz extends Model
 {
     use HasFactory;
@@ -16,6 +18,10 @@ class Quiz extends Model
 
     public function questions(){
         return $this->hasMany(Question::class);
+    }
+
+    public function users(){
+        return $this->belongsToMany(User::class, 'quiz_user');
     }
 
     public function storeQuiz($data){
@@ -32,5 +38,20 @@ class Quiz extends Model
     }
     public function deleteQuiz($id){
         return Quiz::find($id)->delete();
+    }
+    public function assignExam($data){
+        $quizId = $data['quiz'];
+        $quiz = Quiz::find($quizId);
+        $userId = $data['user'];
+        return $quiz->users()->syncWithoutDetaching($userId,);
+    }
+    public function hasQuizAttempted(){
+        $attemptQuiz = [];
+        $authUser = auth()->user()->id;
+        $user = Result::where('user_id', $authUser)->get();
+        foreach($user as $u){
+            array_push($attemptQuiz,$u->quiz_id);
+        }
+        return $attemptQuiz;
     }
 }

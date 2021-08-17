@@ -16,13 +16,14 @@ class User extends Authenticatable
      *
      * @var array
      */
+    private $limit = 10;
     protected $fillable = [
         'name',
         'email',
         'password',
         'visible_password',
         'occupation',
-        'addres',
+        'address',
         'phone',
         'bio',
         'is_admin'
@@ -46,4 +47,34 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function storeUser($data){
+        $data['visible_password'] = $data['password'];
+        $data['password'] = bcrypt($data['password']);
+        $data['is_admin'] = 0;
+        $data['address'] = $data['address'];
+        return User::create($data);
+    }
+
+    public function allUsers(){
+        return User::latest()->paginate($this->limit);
+    }
+    public function findUser($id){
+        return User::find($id);
+    }
+    public function updateUser($data,$id){
+        $user = User::find($id);
+           $user->name = $data->name;
+           $user->visible_password = $data->password;
+           $user->password = encrypt($data->password);
+           $user->occupation = $data->occupation ;
+           $user->address = $data->address ;
+           $user->phone = $data->phone;
+        $user->save();
+        return $user;
+    }
+    public function deleteUser($id){
+  
+        return User::find($id)->delete();
+
+    }
 }

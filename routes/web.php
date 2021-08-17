@@ -13,12 +13,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+Auth::routes([
+    'register' => false,
+    'reset' => false,
+    'verify' => false
+]);
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('quiz/{quizId}', 'ExamController@getQuizQuestions')->middleware('auth');
+
+Route::group(['middleware' => 'isAdmin'],function(){
 Route::get('/', function () {
-    return view('admin/index');
+    return view('admin.index');
 });
+    Route::resource('quiz', 'QuizController');
+    Route::resource('question', 'QuestionController');
+    Route::get('/quiz/{id}/questions', 'QuizController@questions')->name('quiz.question');
+    Route::resource('/user', 'UserController');
+    Route::get('exam/assign', 'ExamController@create')->name('user.exam');
+    Route::post('exam/assign', 'ExamController@assignExam')->name('exam.assign');
+    Route::get('exam/user', 'ExamController@userExam')->name('view.exam');
+    Route::post('exam/remove', 'ExamController@removeExam')->name('exam.remove');
+});
+
+
+
+
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-Route::resource('quiz', 'QuizController');

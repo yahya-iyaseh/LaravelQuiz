@@ -8,7 +8,6 @@
         <div class="content">
             <form action="{{ route('quiz.update', [$quiz->id]) }}" method="POST">
                 @csrf
-                @method('PUT')
             <div class="module">
 
                 <div class="module-head">
